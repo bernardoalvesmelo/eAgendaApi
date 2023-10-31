@@ -56,7 +56,7 @@ namespace eAgenda.WebApi.Controllers
                     Id = d.Id,
                     Descricao = d.Descricao,
                     Valor = d.Valor,
-                    FormaPagamento = nameof(d.FormaPagamento)
+                    FormaPagamento = d.FormaPagamento.ToString()
                 };
 
                 despesasViewModel.Add(despesaViewModel);
@@ -95,7 +95,7 @@ namespace eAgenda.WebApi.Controllers
                 Id = despesa.Id,
                 Descricao = despesa.Descricao,
                 Valor = despesa.Valor,
-                FormaPagamento = nameof(despesa.FormaPagamento)
+                FormaPagamento = despesa.FormaPagamento.ToString()
             };
 
             foreach (var c in despesa.Categorias)
