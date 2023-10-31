@@ -11,6 +11,6 @@ namespace eAgenda.WebApi.ViewModels.ModuloCompromisso
         public DateTime Data { get; set; }
         public string HoraInicio { get; set; }
         public string HoraTermino { get; set; }
-        public Guid? ContatoId { get; set; }
+        public Guid ContatoId { get; set; }
     }
 }

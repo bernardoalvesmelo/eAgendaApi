@@ -6,7 +6,7 @@ namespace eAgenda.WebApi.ViewModels.ModuloDespesa
     {
         public VisualizarDespesaViewModel()
         {
-            CategoriasSelecionadas = new List<ListarCategoriaViewModel>();
+            Categorias = new List<ListarCategoriaViewModel>();
         }
 
         public Guid Id { get; set; }
