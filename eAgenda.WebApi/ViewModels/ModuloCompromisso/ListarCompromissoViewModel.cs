@@ -7,5 +7,6 @@
         public DateTime Data { get; set; }
         public string HoraInicio { get; set; }
         public string HoraTermino { get; set; }
+        public string? NomeContato { get; set; }
     }
 }

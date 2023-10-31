@@ -61,10 +61,10 @@ namespace eAgenda.WebApi.Controllers
             return contatosViewModel;
         }
 
-        [HttpGet("visualizacao-completa/{id}")]
-        public FormsContatoViewModel SeleciontarPorId(string id)
+        [HttpGet("{id}")]
+        public FormsContatoViewModel SeleciontarPorId(Guid id)
         {
-            var contato = servicoContato.SelecionarPorId(Guid.Parse(id)).Value;
+            var contato = servicoContato.SelecionarPorId(id).Value;
 
             var contatoViewModel = new FormsContatoViewModel
             {
@@ -80,9 +80,9 @@ namespace eAgenda.WebApi.Controllers
         }
 
         [HttpGet("visualizacao-completa/{id}")]
-        public VisualizarContatoViewModel SeleciontarPorIdCompleto(string id)
+        public VisualizarContatoViewModel SeleciontarPorIdCompleto(Guid id)
         {
-            var contato = servicoContato.SelecionarPorId(Guid.Parse(id)).Value;
+            var contato = servicoContato.SelecionarPorId(id).Value;
 
             var contatoViewModel = new VisualizarContatoViewModel
             {
@@ -104,7 +104,8 @@ namespace eAgenda.WebApi.Controllers
                     Assunto = c.Assunto,
                     Data = c.Data,
                     HoraInicio = c.HoraInicio.ToString(@"hh\:mm\:ss"),
-                    HoraTermino = c.HoraTermino.ToString(@"hh\:mm\:ss")
+                    HoraTermino = c.HoraTermino.ToString(@"hh\:mm\:ss"),
+                    NomeContato = contato.Nome
                 };
 
                 contatoViewModel.ListarCompromissosViewModel.Add(compromissoViewModel);
@@ -114,7 +115,7 @@ namespace eAgenda.WebApi.Controllers
         }
 
         [HttpPost]
-        public FormsContatoViewModel Inserir(FormsContatoViewModel contatoViewModel)
+        public string Inserir(FormsContatoViewModel contatoViewModel)
         {
             Contato contato = new Contato
             {
@@ -126,15 +127,30 @@ namespace eAgenda.WebApi.Controllers
                 Favorito = contatoViewModel.Favorito
             };
 
-            servicoContato.Inserir(contato);
+            var resultado = servicoContato.Inserir(contato);
 
-            return contatoViewModel;
+            if (resultado.IsSuccess)
+                return "Contato inserido com sucesso";
+
+            string[] erros = resultado.Errors.Select(x => x.Message).ToArray();
+
+            return string.Join("\r\n", erros);
         }
 
         [HttpPut("{id}")]
-        public FormsContatoViewModel Editar(Guid id, FormsContatoViewModel contatoViewModel)
+        public string Editar(Guid id, FormsContatoViewModel contatoViewModel)
         {
-            var contato = servicoContato.SelecionarPorId(id).Value;
+            var resultadoBusca = servicoContato.SelecionarPorId(id);
+
+            if (resultadoBusca.IsFailed)
+            {
+
+                string[] errosBusca = resultadoBusca.Errors.Select(x => x.Message).ToArray();
+
+                return string.Join("\r\n", errosBusca);
+            }
+
+            var contato = resultadoBusca.Value;
 
             contato.Nome = contatoViewModel.Nome;
             contato.Email = contatoViewModel.Email;
@@ -143,27 +159,62 @@ namespace eAgenda.WebApi.Controllers
             contato.Empresa = contatoViewModel.Empresa;
             contato.Favorito = contatoViewModel.Favorito;
 
-            servicoContato.Editar(contato);
+            var resultado = servicoContato.Editar(contato);
 
-            return contatoViewModel;
+            if (resultado.IsSuccess)
+                return "Contato editado com sucesso";
+
+            string[] erros = resultado.Errors.Select(x => x.Message).ToArray();
+
+            return string.Join("\r\n", erros);
         }
 
         [HttpPut("favoritos/{id}")]
-        public void MudarFavorito(Guid id)
+        public string MudarFavorito(Guid id)
         {
-            var contato = servicoContato.SelecionarPorId(id).Value;
+            var resultadoBusca = servicoContato.SelecionarPorId(id);
 
-            servicoContato.ConfigurarFavoritos(contato);
+            if (resultadoBusca.IsFailed)
+            {
 
-            return;
+                string[] errosBusca = resultadoBusca.Errors.Select(x => x.Message).ToArray();
+
+                return string.Join("\r\n", errosBusca);
+            }
+
+            var contato = resultadoBusca.Value;
+
+            var resultado = servicoContato.ConfigurarFavoritos(contato);
+
+            if (resultado.IsSuccess)
+                return "Contato alterado favorito com sucesso";
+
+            string[] erros = resultado.Errors.Select(x => x.Message).ToArray();
+
+            return string.Join("\r\n", erros);
         }
 
         [HttpDelete("{id}")]
-        public void Excluir(Guid id)
+        public string Excluir(Guid id)
         {
-            servicoContato.Excluir(id);
-            
-            return;
+            var resultadoBusca = servicoContato.SelecionarPorId(id);
+
+            if (resultadoBusca.IsFailed)
+            {
+
+                string[] errosBusca = resultadoBusca.Errors.Select(x => x.Message).ToArray();
+
+                return string.Join("\r\n", errosBusca);
+            }
+
+            var resultado = servicoContato.Excluir(id);
+
+            if (resultado.IsSuccess)
+                return "Contato excluído com sucesso";
+
+            string[] erros = resultado.Errors.Select(x => x.Message).ToArray();
+
+            return string.Join("\r\n", erros);
         }
     }
 }
